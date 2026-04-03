@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-# কনফিগারেশন
+# Config
 TARGET_API = "https://devil-api.elementfx.com/api/tg-num.php?key=OWNBOT-JSCZUB&usersid="
 CREDIT = "SB-SAKIB"
 DEV_USER = "@sakib01994"
@@ -13,23 +13,20 @@ GROUP = "@publicgroup5s"
 def home():
     usersid = request.args.get('usersid')
     
-    # যদি প্যারামিটার না থাকে বা এপি ফেল হয়
+    # parameter missing handling
     if not usersid:
         return jsonify({
             "status": False,
             "message": "API REQUEST FAILED!",
-            "error": "Missing 'usersid' parameter.",
-            "instruction": f"Contact our Developer {DEV_USER} for access.",
+            "contact": f"Contact Developer {DEV_USER}",
             "group": GROUP
         }), 400
 
     try:
-        # মেইন এপি থেকে ডেটা আনা
         response = requests.get(f"{TARGET_API}{usersid}", timeout=10)
         data = response.json()
 
         if data.get("status") == True:
-            # প্রিমিয়াম কাস্টম জেসন আউটপুট
             res = data["results"]["result"]
             return jsonify({
                 "status": True,
@@ -44,24 +41,25 @@ def home():
                     }
                 },
                 "branding": {
-                    "api": "SB-SAKIB ",
+                    "api": "SB-SAKIB",
                     "credit": CREDIT,
                     "developer": DEV_USER,
                     "community": GROUP
                 }
             })
         else:
-            raise Exception("Invalid Response")
+            return jsonify({
+                "status": False,
+                "message": "API FAILED! User Not Found or Key Expired.",
+                "contact": DEV_USER
+            }), 404
 
     except Exception:
         return jsonify({
             "status": False,
-            "message": "API CONNECTION FAILED!",
-            "error": "Internal Server Error or Expired Key.",
-            "contact": f"Message {DEV_USER} to fix this issue.",
-            "group": GROUP
+            "message": "CONNECTION ERROR!",
+            "contact": f"Message {DEV_USER} to fix."
         }), 500
 
-# ভার্সেল হ্যান্ডলার
-def handler(event, context):
-    return app(event, context)
+if __name__ == '__main__':
+    app.run(debug=True)
