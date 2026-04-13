@@ -19,7 +19,7 @@ def home():
             "status": False,
             "message": "API REQUEST FAILED!",
             "contact": f"Contact Developer {DEV_USER}",
-            "group": GROUP
+            "group": GROU
         }), 400
 
     try:
